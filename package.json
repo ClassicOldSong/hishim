@@ -1,0 +1,20 @@
+{
+  "name": "hishim",
+  "version": "0.0.1",
+  "description": "History API shim for non-browser environments",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {},
+  "keywords": [
+    "history",
+    "shim",
+    "jerryscript",
+    "quickjs",
+    "node"
+  ],
+  "repository": "ClassicOldSong/hishim",
+  "author": "Yukino Song <yukino@yuki.network>",
+  "license": "MIT",
+  "bugs": "https://github.com/ClassicOldSong/hishim/issues",
+  "homepage": "https://github.com/ClassicOldSong/hishim"
+}
