@@ -1,6 +1,7 @@
 const History = class History {
-	constructor(handlers = {}) {
+	constructor(handlers = {}, env = {}) {
 		this.__handlers = handlers
+		this.__env = env
 		this.__length = 0
 		this.__current = {
 			state: null,
@@ -13,6 +14,21 @@ const History = class History {
 
 		// does nothing for now
 		this.scrollRestoration = 'auto'
+	}
+
+	__emitPopState() {
+		const glob = this.__env.global || globalThis
+		const onpopstate = glob.onpopstate || globalThis.onpopstate
+
+		if (!onpopstate) return
+
+		const Event = glob.Event || globalThis.Event
+
+		if (!Event) return
+
+		const popStateEvent = new Event('popstate')
+
+		onpopstate(popStateEvent)
 	}
 
 	get state() {
@@ -37,6 +53,8 @@ const History = class History {
 
 		const proceed = () => {
 			this.__current = newCurrent
+
+			this.__emitPopState()
 		}
 
 		if (delta > 0) {
@@ -92,6 +110,8 @@ const History = class History {
 			}
 			newCurrent.idx = this.__length
 			this.__current = newCurrent
+
+			this.__emitPopState()
 		}
 
 		if (this.__handlers.handlePushState) {
@@ -111,7 +131,9 @@ const History = class History {
 				newCurrent.next = oldCurrent.next
 				newCurrent.idx = oldCurrent.idx
 			}
-			this.__current = state
+			this.__current = newCurrent
+
+			this.__emitPopState()
 		}
 
 		if (this.__handlers.handleReplaceState) {
