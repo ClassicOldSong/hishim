@@ -17,12 +17,12 @@ const History = class History {
 	}
 
 	__emitPopState() {
-		const glob = this.__env.global || globalThis
-		const onpopstate = glob.onpopstate || globalThis.onpopstate
+		const globalObj = this.__env.global || globalThis
+		const onpopstate = globalObj.onpopstate || globalThis.onpopstate
 
 		if (!onpopstate) return
 
-		const Event = glob.Event || globalThis.Event
+		const Event = globalObj.Event || globalThis.Event
 
 		if (!Event) return
 
@@ -53,7 +53,6 @@ const History = class History {
 
 		const proceed = () => {
 			this.__current = newCurrent
-
 			this.__emitPopState()
 		}
 
@@ -101,16 +100,15 @@ const History = class History {
 	pushState(state, title, url) {
 		const oldCurrent = this.__current
 		const newCurrent = { state, title, url, prev: null, next: null, idx: 0 }
+		if (this.__length) {
+			newCurrent.prev = oldCurrent
+			newCurrent.idx = oldCurrent.idx + 1
+		}
 
 		const proceed = () => {
-			this.__length = oldCurrent.idx + 1
-			if (oldCurrent.idx > -1) {
-				oldCurrent.next = newCurrent
-				newCurrent.prev = oldCurrent
-			}
-			newCurrent.idx = this.__length
+			oldCurrent.next = newCurrent
+			this.__length = newCurrent.idx + 1
 			this.__current = newCurrent
-
 			this.__emitPopState()
 		}
 
@@ -123,16 +121,13 @@ const History = class History {
 
 	replaceState(state, title, url) {
 		const oldCurrent = this.__current
-		const newCurrent = { state, title, url, prev: null, next: null, idx: 0 }
+		const { prev, next, idx } = oldCurrent
+		const newCurrent = { state, title, url, prev, next, idx }
+		if (idx < 0) newCurrent.idx = 0
 
 		const proceed = () => {
-			if (oldCurrent.idx > -1) {
-				newCurrent.prev = oldCurrent.prev
-				newCurrent.next = oldCurrent.next
-				newCurrent.idx = oldCurrent.idx
-			}
+			if (idx < 0) this.__length = 1
 			this.__current = newCurrent
-
 			this.__emitPopState()
 		}
 
